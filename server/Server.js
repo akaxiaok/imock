@@ -5,7 +5,7 @@ var util = require('util');
 var fs = require('fs');
 
 const app = express();
-app.use(express.static('./'));
+// app.use(express.static('./'));
 app.post('/form', function (req, res, next) {
   //生成multiparty对象，并配置上传目标路径
   var form = new multiparty.Form({uploadDir: './'});
@@ -105,6 +105,6 @@ crossDomainApp.get('/get', function (req, res, next) {
 
 });
 
-crossDomainApp.listen(3001, function () {
-  console.log('crossDomainApp start at port 3001\n');
-});
+// crossDomainApp.listen(3001, function () {
+//   console.log('crossDomainApp start at port 3001\n');
+// });
