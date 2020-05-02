@@ -5,6 +5,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 const DIC = {
   VERB: [
     { label: 'GET', value: 'GET' },
@@ -141,7 +143,11 @@ export default {
   methods: {
     handleSubmit(form, done) {
       this.$message.success(JSON.stringify(this.request));
-      done();
+      axios.post('/response', this.request).then(res=>{
+        console.log(res);
+      }).finally(()=>{
+        done();
+      });
     },
   },
   computed: {

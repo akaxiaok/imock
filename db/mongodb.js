@@ -5,17 +5,26 @@ const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
-client.connect(async err => {
-  const db = client.db('test');
-  // perform actions on the collection object
-  try {
-    await insertDocuments(db);
-    // await findDocuments(db);
-  } catch (e) {
-    console.log(e);
-  }
-  client.close();
-});
+
+exports.connectDB = (method, cb) => {
+  client.connect(async err => {
+    if (err) {
+      cb(err);
+    }
+    const db = client.db('test');
+    // perform actions on the collection object
+    try {
+      await method(db);
+      // await findDocuments(db);
+    } catch (e) {
+      console.log(e);
+      cb(err);
+    }
+    client.close();
+    cb();
+  });
+};
+
 
 
 async function insertDocuments(db, callback) {
@@ -57,3 +66,4 @@ async function findDocuments(db) {
   return docs;
 }
 
+exports = client;
