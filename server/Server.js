@@ -61,7 +61,7 @@ app.get('/script.js', function (req, res, next) {
   res.end();
 });
 
-app.listen(3000, function () {
+app.listen(process.env.PORT, function () {
   console.log('server start at port 3000\n');
 });
 
