@@ -1,7 +1,9 @@
 <template>
-    <avue-form ref="request" :option="requestOption" v-model="request" @submit="handleSubmit">
-
-    </avue-form>
+    <div>
+<!--        <avue-form ref="request" :option="requestOption" v-model="request" @submit="handleSubmit">-->
+<!--        </avue-form>-->
+        <avue-crud :data="data" :option="requestOption" v-model="request"></avue-crud>
+    </div>
 </template>
 
 <script>
@@ -138,14 +140,15 @@ export default {
       },
       headers: {},
       body: {},
+      data: []
     };
   },
   methods: {
     handleSubmit(form, done) {
-      this.$message.success(JSON.stringify(this.request));
-      axios.post('/response', this.request).then(res=>{
+      this.$message.success(JSON.stringify(form));
+      axios.post('/response', this.request).then(res => {
         console.log(res);
-      }).finally(()=>{
+      }).finally(() => {
         done();
       });
     },
@@ -194,7 +197,7 @@ export default {
           },
           {
             label: 'Content-Type',
-            prop: 'content',
+            prop: 'Content-Type',
             span: 4,
             type: 'select',
             dicData: DIC.CONTENT,
@@ -216,7 +219,7 @@ export default {
           },
           {
             label: 'Content-Encoding',
-            prop: 'encoding',
+            prop: 'Content-Encoding',
             span: 12,
             row: true,
             type: 'text',
@@ -232,6 +235,11 @@ export default {
       };
     }
   },
+  mounted() {
+    axios.get('/response').then(res => {
+      this.data = res.data;
+    });
+  }
 };
 </script>
 

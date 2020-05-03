@@ -1,8 +1,30 @@
-exports.createResponse = function(req, res) {
-  console.log(req);
+const { insertResponse, findResponse } = require('../db/mongodb');
 
-  res.json({message:'create ok'});
+exports.createResponse = function(req, res) {
+  const { encoding, status, type, verb, body } = req.body;
+  res.set({
+    'Content-Encoding': encoding,
+    'Content-Type': type,
+  }).status(status).json(JSON.parse(body));
+  insertResponse({
+    headers: {
+      'Content-Encoding': encoding,
+      'Content-Type': type,
+    },
+    body: JSON.parse(body)
+  }).then(res => {
+    console.log(res);
+  }).catch(err => {
+    console.log(err);
+  });
 };
 exports.getResponse = function(req, res) {
-  res.json({message:'get ok'});
+  findResponse().then(response => {
+
+    res.json(response.map(v => {
+      return { body: v.body, ...v.headers };
+    }));
+  }).catch(err => {
+    console.log(err);
+  });
 };

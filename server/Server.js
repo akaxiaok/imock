@@ -2,11 +2,10 @@ var express = require('express');
 var router = express.Router();
 var multiparty = require('multiparty');
 var util = require('util');
-var bodyParser = require('body-parser');
 const response = require('./controller/response');
 const app = express();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.route('/response').get(response.getResponse).post(response.createResponse);
 
 // app.use(express.static('./'));

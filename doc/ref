@@ -3,3 +3,16 @@ https://zhuanlan.zhihu.com/p/27162732
 https://www.jianshu.com/p/b4f6a8785de7
 https://zhuanlan.zhihu.com/p/91240556
 https://devcenter.heroku.com/articles/getting-started-with-nodejs
+
+[Debugging a Node.js application that uses nodemon﻿](https://www.jetbrains.com/help/webstorm/running-and-debugging-node-js.html#nodemon)
+[bodyparser实现原理解析](https://zhuanlan.zhihu.com/p/78482006)
+
+修改header
+
+res.setHeader - calls the native Node method
+res.writeHead - calls the native Node method
+
+
+res.set - express sets headers
+
+res.headers - express an alias to res.set
