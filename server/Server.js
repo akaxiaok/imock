@@ -1,3 +1,4 @@
+const { findResponse } = require('./db/mongodb');
 var express = require('express');
 var router = express.Router();
 var multiparty = require('multiparty');
@@ -7,6 +8,19 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.route('/response').get(response.getResponse).post(response.createResponse);
+
+findResponse().then(response => {
+  response.forEach(v => {
+    const { headers, verb, path, status, body, } = v;
+    console.log(verb + ' ' + path + ' start');
+    app[verb.toLowerCase()]('/'+path, function(req, res, next) {
+      res.set(headers).status(status).json(body);
+    });
+  });
+}).catch(err => {
+  console.log(err);
+});
+
 
 // app.use(express.static('./'));
 app.post('/form', function(req, res, next) {

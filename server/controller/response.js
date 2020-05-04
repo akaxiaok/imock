@@ -1,12 +1,14 @@
 const { insertResponse, findResponse } = require('../db/mongodb');
 
 exports.createResponse = function(req, res) {
-  const { encoding, status, type, verb, body } = req.body;
-  res.set({
-    'Content-Encoding': encoding,
-    'Content-Type': type,
-  }).status(status).json(JSON.parse(body));
+  const { status, verb, body, path, } = req.body;
+  const encoding = req.body['Content-Encoding'];
+  const type = req.body['Content-Type'];
+  res.status(status).json(req.body);
   insertResponse({
+    verb,
+    path,
+    status,
     headers: {
       'Content-Encoding': encoding,
       'Content-Type': type,
@@ -20,9 +22,9 @@ exports.createResponse = function(req, res) {
 };
 exports.getResponse = function(req, res) {
   findResponse().then(response => {
-
     res.json(response.map(v => {
-      return { body: v.body, ...v.headers };
+      const { headers, ...rest } = v;
+      return { ...rest, ...headers };
     }));
   }).catch(err => {
     console.log(err);

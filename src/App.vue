@@ -1,8 +1,8 @@
 <template>
     <div>
-<!--        <avue-form ref="request" :option="requestOption" v-model="request" @submit="handleSubmit">-->
-<!--        </avue-form>-->
-        <avue-crud :data="data" :option="requestOption" v-model="request"></avue-crud>
+        <!--        <avue-form ref="request" :option="requestOption" v-model="request" @submit="handleSubmit">-->
+        <!--        </avue-form>-->
+        <avue-crud :data="data" :option="requestOption" @row-save="handleRowSave" v-model="request"></avue-crud>
     </div>
 </template>
 
@@ -132,9 +132,11 @@ export default {
   data() {
     return {
       request: {
+        verb: 'GET',
+        path: 'test/',
         status: '200',
-        encoding: 'UTF-8',
-        type: 'application/json',
+        'Content-Encoding': 'UTF-8',
+        'Content-Type': 'application/json',
         content: 'application/json',
         body: '{"msg": "auth"}'
       },
@@ -145,6 +147,14 @@ export default {
   },
   methods: {
     handleSubmit(form, done) {
+      this.$message.success(JSON.stringify(form));
+      axios.post('/response', this.request).then(res => {
+        console.log(res);
+      }).finally(() => {
+        done();
+      });
+    },
+    handleRowSave(form, done) {
       this.$message.success(JSON.stringify(form));
       axios.post('/response', this.request).then(res => {
         console.log(res);
@@ -198,7 +208,7 @@ export default {
           {
             label: 'Content-Type',
             prop: 'Content-Type',
-            span: 4,
+            span: 12,
             type: 'select',
             dicData: DIC.CONTENT,
             mock: {
