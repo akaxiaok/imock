@@ -3,6 +3,7 @@
         <!--        <avue-form ref="request" :option="requestOption" v-model="request" @submit="handleSubmit">-->
         <!--        </avue-form>-->
         <avue-crud :data="data" :option="requestOption" @row-save="handleRowSave" v-model="request"></avue-crud>
+
     </div>
 </template>
 
@@ -138,7 +139,7 @@ export default {
         'Content-Encoding': 'UTF-8',
         'Content-Type': 'application/json',
         content: 'application/json',
-        body: '{"msg": "auth"}'
+        body: { 'msg': 'auth' },
       },
       headers: {},
       body: {},
@@ -184,6 +185,7 @@ export default {
           {
             label: 'Verb',
             prop: 'verb',
+            span: 23,
             type: 'radio',
             dicData: DIC.VERB,
             row: true,
@@ -208,13 +210,12 @@ export default {
           {
             label: 'Content-Type',
             prop: 'Content-Type',
-            span: 12,
+            span: 8,
             type: 'select',
             dicData: DIC.CONTENT,
             mock: {
               type: 'dic',
             },
-            row: true,
             change: ({ value, column }) => {
               this.request.type = value;
               this.request.content = '';
@@ -222,6 +223,7 @@ export default {
           },
           {
             label: '',
+            labelWidth: 0,
             prop: 'type',
             span: 12,
             row: true,
@@ -237,12 +239,40 @@ export default {
           {
             label: 'Response body',
             prop: 'body',
-            span: 12,
-            row: true,
-            type: 'textarea',
+            component: 'JsonEditor',
+            span: 24,
+            params: {
+              options: {
+                confirmText: 'confirm',
+                cancelText: 'cancel',
+              },
+              objData: this.request.body
+            }
           },
+          {
+            label: 'Response body',
+            prop: 'jsonString',
+            component: 'CodePre',
+            params: {
+              code: this.jsonString
+            },
+            span: 24,
+            row: true,
+          },
+          // {
+          //   label: 'Response body',
+          //   prop: 'body',
+          //   disabled: true,
+          //   span: 12,
+          //   row: true,
+          //   type: 'textarea',
+          // },
+
         ]
       };
+    },
+    jsonString() {
+      return JSON.stringify(this.request.body,null, '  ');
     }
   },
   mounted() {
@@ -261,5 +291,10 @@ export default {
         text-align: center;
         color: #2c3e50;
         margin-top: 60px;
+    }
+
+    /*fix bug*/
+    .pure-form select {
+        height: auto !important;
     }
 </style>

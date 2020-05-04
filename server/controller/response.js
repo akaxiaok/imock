@@ -13,7 +13,7 @@ exports.createResponse = function(req, res) {
       'Content-Encoding': encoding,
       'Content-Type': type,
     },
-    body: JSON.parse(body)
+    body: body
   }).then(res => {
     console.log(res);
   }).catch(err => {
