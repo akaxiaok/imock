@@ -2,7 +2,13 @@
     <div>
         <!--        <avue-form ref="request" :option="requestOption" v-model="request" @submit="handleSubmit">-->
         <!--        </avue-form>-->
-        <avue-crud :data="data" :option="requestOption" @row-save="handleRowSave" v-model="request"></avue-crud>
+        <avue-crud :data="data"
+                   :option="requestOption"
+                   @row-save="handleRowSave"
+                   @row-update="handleRowSave"
+                   v-model="request"
+                   @before-close="beforeClose"
+                   @refresh-change="refreshChange"></avue-crud>
 
     </div>
 </template>
@@ -126,23 +132,22 @@ const DIC = {
     },
   ]
 };
-
+const defaultRequest = {
+  verb: 'GET',
+  path: 'test/',
+  status: '200',
+  'Content-Encoding': 'UTF-8',
+  'Content-Type': 'application/json',
+  content: 'application/json',
+  body: { 'msg': 'auth' },
+};
 export default {
   name: 'App',
   components: {},
   data() {
     return {
-      request: {
-        verb: 'GET',
-        path: 'test/',
-        status: '200',
-        'Content-Encoding': 'UTF-8',
-        'Content-Type': 'application/json',
-        content: 'application/json',
-        body: { 'msg': 'auth' },
-      },
-      headers: {},
-      body: {},
+      request: defaultRequest,
+      baseURL: '',
       data: []
     };
   },
@@ -163,6 +168,13 @@ export default {
         done();
       });
     },
+    refreshChange() {
+      axios.get('/response').then(res => {
+        this.data = res.data;
+      });
+    },
+    beforeClose() {
+    }
   },
   computed: {
     requestOption() {
@@ -172,10 +184,11 @@ export default {
         labelWidth: 200,
         column: [
           {
+            value: defaultRequest.path,
             label: 'Path',
             span: 12,
             prop: 'path',
-            prepend: 'http://',
+            prepend: 'http://' + this.baseURL,
             mock: {
               type: 'url',
               header: false,
@@ -183,6 +196,7 @@ export default {
             row: true,
           },
           {
+            value: defaultRequest.verb,
             label: 'Verb',
             prop: 'verb',
             span: 23,
@@ -197,6 +211,7 @@ export default {
             // }
           },
           {
+            value: defaultRequest.status,
             label: 'Response status',
             prop: 'status',
             span: 12,
@@ -208,8 +223,9 @@ export default {
             },
           },
           {
+            value: defaultRequest['Content-Type'],
             label: 'Content-Type',
-            prop: 'Content-Type',
+            prop: 'type',
             span: 8,
             type: 'select',
             dicData: DIC.CONTENT,
@@ -217,19 +233,20 @@ export default {
               type: 'dic',
             },
             change: ({ value, column }) => {
-              this.request.type = value;
-              this.request.content = '';
+              this.request['Content-Type'] = value;
             },
           },
           {
+            value: defaultRequest['Content-Type'],
             label: '',
             labelWidth: 0,
-            prop: 'type',
+            prop: 'Content-Type',
             span: 12,
             row: true,
             type: 'text',
           },
           {
+            value: defaultRequest['Content-Encoding'],
             label: 'Content-Encoding',
             prop: 'Content-Encoding',
             span: 12,
@@ -237,6 +254,7 @@ export default {
             type: 'text',
           },
           {
+            value: defaultRequest.body,
             label: 'Response body',
             prop: 'body',
             component: 'JsonEditor',
@@ -246,11 +264,12 @@ export default {
                 confirmText: 'confirm',
                 cancelText: 'cancel',
               },
-              objData: this.request.body
+              objData: this.request.body || {}
             }
           },
           {
-            label: 'Response body',
+            label: '',
+
             prop: 'jsonString',
             component: 'CodePre',
             params: {
@@ -272,13 +291,13 @@ export default {
       };
     },
     jsonString() {
-      return JSON.stringify(this.request.body,null, '  ');
+      return JSON.stringify(this.request.body, null, '  ');
     }
   },
   mounted() {
-    axios.get('/response').then(res => {
-      this.data = res.data;
-    });
+    // axios.get('/response').then(res => {
+    //   this.data = res.data;
+    // });
   }
 };
 </script>

@@ -69,7 +69,7 @@ async function findDocuments(db) {
 
 async function insertResponse(response) {
   return connectDB(async(db) => {
-    await db
+    return await db
       .collection('response')
       .insertOne(response);
   });

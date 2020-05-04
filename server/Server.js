@@ -3,11 +3,10 @@ var express = require('express');
 var router = express.Router();
 var multiparty = require('multiparty');
 var util = require('util');
-const response = require('./controller/response');
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.route('/response').get(response.getResponse).post(response.createResponse);
+
 
 findResponse().then(response => {
   response.forEach(v => {
