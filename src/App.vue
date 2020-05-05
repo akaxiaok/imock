@@ -5,10 +5,16 @@
         <avue-crud :data="data"
                    :option="requestOption"
                    @row-save="handleRowSave"
-                   @row-update="handleRowSave"
+                   @row-update="handleRowUpdate"
                    v-model="request"
                    @before-close="beforeClose"
                    @refresh-change="refreshChange"></avue-crud>
+        <el-card class="box-card" header="Test">
+            <avue-form ref="testRequest" :option="testRequestOption" v-model="testRequest" @submit="sendRequest">
+            </avue-form>
+            <span>response</span>
+            <CodePre :code="testRequestResponse"></CodePre>
+        </el-card>
 
     </div>
 </template>
@@ -134,12 +140,13 @@ const DIC = {
 };
 const defaultRequest = {
   verb: 'GET',
-  path: 'test/',
+  path: '',
   status: '200',
   'Content-Encoding': 'UTF-8',
   'Content-Type': 'application/json',
   content: 'application/json',
   body: { 'msg': 'auth' },
+  baseURL: 'test/'
 };
 export default {
   name: 'App',
@@ -147,7 +154,8 @@ export default {
   data() {
     return {
       request: defaultRequest,
-      baseURL: '',
+      testRequest: {},
+      testRequestResponse: '',
       data: []
     };
   },
@@ -161,19 +169,39 @@ export default {
       });
     },
     handleRowSave(form, done) {
-      this.$message.success(JSON.stringify(form));
-      axios.post('/response', this.request).then(res => {
-        console.log(res);
+      axios.post('/response', { baseURL: defaultRequest.baseURL, ...this.request }).then(res => {
+        this.$message.success(JSON.stringify(res));
+      }).catch(err => {
+        this.$message.error(err.response.data.message);
+      }).finally(() => {
+        done();
+      });
+    },
+    handleRowUpdate(row, index, done) {
+      axios.put('/response', { baseURL: defaultRequest.baseURL, ...this.request }).then(res => {
+        this.$message.success(JSON.stringify(res));
+      }).catch(err => {
+        this.$message.error(err.response.data.message);
       }).finally(() => {
         done();
       });
     },
     refreshChange() {
-      axios.get('/response').then(res => {
+      axios.get('/response' + '?baseURL=' + defaultRequest.baseURL).then(res => {
         this.data = res.data;
       });
     },
     beforeClose() {
+    },
+    sendRequest(form, done) {
+      const { verb, path } = this.testRequest;
+      axios[verb.toLowerCase()](defaultRequest.baseURL + path).then(res => {
+        this.testRequestResponse = JSON.stringify(res.data, null, '  ');
+      }).catch(err => {
+        this.testRequestResponse = JSON.stringify(err.response.data, null, '  ');
+      }).finally(res => {
+        done();
+      });
     }
   },
   computed: {
@@ -188,7 +216,7 @@ export default {
             label: 'Path',
             span: 12,
             prop: 'path',
-            prepend: 'http://' + this.baseURL,
+            prepend: 'http://' + defaultRequest.baseURL,
             mock: {
               type: 'url',
               header: false,
@@ -290,14 +318,47 @@ export default {
         ]
       };
     },
+    testRequestOption() {
+      return {
+        submitText: 'test',
+        labelWidth: 50,
+        column: [
+          {
+            value: defaultRequest.path,
+            label: 'Path',
+            span: 12,
+            prop: 'path',
+            prepend: 'http://' + defaultRequest.baseURL,
+            mock: {
+              type: 'url',
+              header: false,
+            },
+            row: true,
+          },
+          {
+            value: defaultRequest.verb,
+            label: 'Verb',
+            prop: 'verb',
+            span: 23,
+            type: 'radio',
+            dicData: DIC.VERB,
+            row: true,
+            mock: {
+              type: 'dic'
+            },
+            // change:({value,column})=>{
+            //   this.$message.success('change')
+            // }
+          },
+        ]
+      };
+    },
     jsonString() {
       return JSON.stringify(this.request.body, null, '  ');
     }
   },
   mounted() {
-    // axios.get('/response').then(res => {
-    //   this.data = res.data;
-    // });
+    this.refreshChange();
   }
 };
 </script>

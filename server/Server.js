@@ -1,44 +1,59 @@
-const { findResponse } = require('./db/mongodb');
-var express = require('express');
-var router = express.Router();
-var multiparty = require('multiparty');
-var util = require('util');
+const { findResponse, findUsers } = require('./db/mongodb');
+const express = require('express');
+const multiparty = require('multiparty');
+const util = require('util');
+const Mock = require('mockjs');
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+function addRoute(user) {
+  app.all('/' + user.baseURL + '*', function(req, res, next) {
+    console.log(req.params.url);
+    const path = req.params[0];
+    const verb = req.method;
+    findResponse(user.baseURL, path, verb).then(response => {
+      if (response) {
+        const { headers, verb, path, status, body, } = response;
+        console.log(verb + ' ' + path + ' start');
+        res.set(headers).status(status).json(Mock.mock(body));
+      } else {
+        console.log(verb + ' ' + path + ' not found');
+        res.status(404).json({ message: verb + ' ' + path + ' not found' });
+      }
 
-findResponse().then(response => {
-  response.forEach(v => {
-    const { headers, verb, path, status, body, } = v;
-    console.log(verb + ' ' + path + ' start');
-    app[verb.toLowerCase()]('/'+path, function(req, res, next) {
-      res.set(headers).status(status).json(body);
     });
+
+  });
+}
+
+findUsers().then(users => {
+  users.forEach(user => {
+    addRoute(user);
   });
 }).catch(err => {
   console.log(err);
 });
 
-
 // app.use(express.static('./'));
 app.post('/form', function(req, res, next) {
   //生成multiparty对象，并配置上传目标路径
-  var form = new multiparty.Form({ uploadDir: './' });
+  const form = new multiparty.Form({ uploadDir: './' });
   //上传完成后处理
   //fields 一般的表单元素
   //files 文件
   form.parse(req, function(err, fields, files) {
-    var filesTmp = JSON.stringify(files, null, 2);
+    const filesTmp = JSON.stringify(files, null, 2);
     if (err) {
       console.log('parse error: ' + err);
     } else {
       console.log('parse files: ' + filesTmp);
-      var key = Object.keys(files)[0];
-      var inputFile = files[key][0];
+      const key = Object.keys(files)[0];
+      const inputFile = files[key][0];
 
-      var uploadedPath = inputFile.path;
-      var dstPath = './' + inputFile.originalFilename;
+      const uploadedPath = inputFile.path;
+      const dstPath = './' + inputFile.originalFilename;
       //重命名为真实文件名
       fs.rename(uploadedPath, dstPath, function(err) {
         if (err) {
@@ -78,6 +93,7 @@ app.get('/script.js', function(req, res, next) {
 });
 
 module.exports = app;
+exports.addRoute = addRoute;
 
 
 const crossDomainApp = express();
