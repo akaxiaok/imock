@@ -1,5 +1,5 @@
 <template>
-    <pre v-highlightjs="code"><code class="json"></code></pre>
+    <pre style="height: 202px" v-highlightjs="code"><code class="json"></code></pre>
 </template>
 
 <script>

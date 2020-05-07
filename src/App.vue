@@ -260,7 +260,7 @@ export default {
             mock: {
               type: 'dic',
             },
-            change: ({ value, column }) => {
+            change: ({ value }) => {
               this.request['Content-Type'] = value;
             },
           },
@@ -297,23 +297,26 @@ export default {
           },
           {
             label: '',
-
             prop: 'jsonString',
             component: 'CodePre',
             params: {
               code: this.jsonString
             },
-            span: 24,
-            row: true,
+            span: 12,
           },
-          // {
-          //   label: 'Response body',
-          //   prop: 'body',
-          //   disabled: true,
-          //   span: 12,
-          //   row: true,
-          //   type: 'textarea',
-          // },
+          {
+            value: this.jsonString,
+            label: '',
+            prop: 'bodyString',
+            span: 12,
+            type: 'textarea',
+            change: ({ value }) => {
+             try {
+               this.request.body = JSON.parse(value);;
+             } catch (e) {
+             }
+            }
+          },
 
         ]
       };
