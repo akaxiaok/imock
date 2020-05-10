@@ -76,3 +76,13 @@ async function updateOneResponse(res) {
 }
 
 exports.updateOneResponse = updateOneResponse;
+
+
+async function deleteOneResponse(_id) {
+  return connectDB(async(db) => {
+    const collection = db.collection('response');
+    return collection.deleteOne({ _id: ObjectId(_id) });
+  });
+}
+
+exports.deleteOneResponse = deleteOneResponse;

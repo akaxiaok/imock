@@ -8,7 +8,9 @@
                    @row-update="handleRowUpdate"
                    v-model="request"
                    @before-close="beforeClose"
-                   @refresh-change="refreshChange"></avue-crud>
+                   @refresh-change="refreshChange"
+                   @row-del="handleDelete"
+        ></avue-crud>
         <el-card class="box-card" header="Test">
             <avue-form ref="testRequest" :option="testRequestOption" v-model="testRequest" @submit="sendRequest">
             </avue-form>
@@ -202,6 +204,20 @@ export default {
       }).finally(res => {
         done();
       });
+    },
+    handleDelete(form, index) {
+      this.$confirm('delete or not?').then(() => {
+        axios.delete('/response', {
+          data: { _id: form._id }
+        }).then(res => {
+          this.$message.success(res.data.message);
+        }).catch(err => {
+          this.$message.error(err.message);
+        });
+      }).catch(err => {
+        //cancel
+      });
+
     }
   },
   computed: {
@@ -313,7 +329,7 @@ export default {
             change: ({ value }) => {
               try {
                 this.request.body = JSON.parse(value);
-                ;
+
               } catch (e) {
               }
             }
