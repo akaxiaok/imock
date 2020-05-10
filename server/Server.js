@@ -3,6 +3,7 @@ const express = require('express');
 const multiparty = require('multiparty');
 const util = require('util');
 const Mock = require('mockjs');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
@@ -20,7 +21,11 @@ function addRoute(user) {
         res.set(headers).status(status).json(Mock.mock(body));
       } else {
         console.log(verb + ' ' + path + ' not found');
-        res.status(404).json({ message: verb + ' ' + path + ' not found' });
+        if (verb === 'OPTIONS') {
+          res.status(200).end();
+        } else {
+          res.status(404).json({ message: verb + ' ' + path + ' not found' });
+        }
       }
 
     });
@@ -36,7 +41,7 @@ findUsers().then(users => {
   console.log(err);
 });
 
-// app.use(express.static('./'));
+app.use(express.static(path.join(__dirname, '../dist')));
 app.post('/form', function(req, res, next) {
   //生成multiparty对象，并配置上传目标路径
   const form = new multiparty.Form({ uploadDir: './' });
@@ -99,26 +104,20 @@ exports.addRoute = addRoute;
 const crossDomainApp = express();
 
 
-crossDomainApp.all('*', function(req, res, next) {
-  // res.header("Access-Control-Allow-Origin", "*"); // 允许哪些域进行跨域请求
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.header('Access-Control-Allow-Headers', 'X-Custom-Header'); // 允许哪些自定义头部字段
+app.all('*', function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*'); // 允许哪些域进行跨域请求
+  res.header('Access-Control-Allow-Headers', '*'); // 允许哪些自定义头部字段
   res.header('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS'); // 支持哪些跨域方法
   // Access-Control-Allow-Credentials 是否允许携带 Cookie,允许携带 Cookie 的域必须在 Access-Control-Allow-Origin 明确指定，不能是 *，同时还需要在客户端 XHR 里指定 withCredentials:true
-  res.header('Access-Control-Allow-Credentials', true);
-  res.cookie('express-cookie', 'myCookie');
+  // res.header('Access-Control-Allow-Credentials', true);
+  // res.cookie('express-cookie', 'myCookie');
   // Access-Control-Expose-Headers XMLHttpRequest 对象 getResponseHeader 方法能够读取的响应头部字段 默认为 Cache-Control、Content-Language、Content-Type、Expires、Last-Modified、Pragma
-  res.header('Access-Control-Expose-Headers', 'Date');
-  res.header('Access-Control-Max-Age', 60); // 在 n 秒时间内不必再次预检
-  res.header('X-Powered-By', ' 3.2.1');
+  // res.header('Access-Control-Expose-Headers', 'Date');
+  res.header('Access-Control-Max-Age', 0); // 在 n 秒时间内不必再次预检
+  // res.header('X-Powered-By', ' 3.2.1');
   //这段仅仅为了方便返回json而已
   res.header('Content-Type', 'application/json;charset=utf-8');
-  if (req.method == 'OPTIONS') {
-    //让options请求快速返回
-    res.sendStatus(200);
-  } else {
-    next();
-  }
+  next();
 });
 
 crossDomainApp.post('/post', function(req, res, next) {

@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from './request';
 
 const DIC = {
   VERB: [
@@ -195,7 +195,7 @@ export default {
     },
     sendRequest(form, done) {
       const { verb, path } = this.testRequest;
-      axios[verb.toLowerCase()](defaultRequest.baseURL + path).then(res => {
+      axios[verb.toLowerCase()](defaultRequest.baseURL + path, { headers: { test: 1 } }).then(res => {
         this.testRequestResponse = JSON.stringify(res.data, null, '  ');
       }).catch(err => {
         this.testRequestResponse = JSON.stringify(err.response.data, null, '  ');
@@ -311,10 +311,11 @@ export default {
             span: 12,
             type: 'textarea',
             change: ({ value }) => {
-             try {
-               this.request.body = JSON.parse(value);;
-             } catch (e) {
-             }
+              try {
+                this.request.body = JSON.parse(value);
+                ;
+              } catch (e) {
+              }
             }
           },
 
