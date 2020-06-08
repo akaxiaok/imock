@@ -1,24 +1,27 @@
 <template>
-    <div>
-        <!--        <avue-form ref="request" :option="requestOption" v-model="request" @submit="handleSubmit">-->
-        <!--        </avue-form>-->
-        <avue-crud :data="data"
-                   :option="requestOption"
-                   @row-save="handleRowSave"
-                   @row-update="handleRowUpdate"
-                   v-model="request"
-                   @before-close="beforeClose"
-                   @refresh-change="refreshChange"
-                   @row-del="handleDelete"
-        ></avue-crud>
-        <el-card class="box-card" header="Test">
-            <avue-form ref="testRequest" :option="testRequestOption" v-model="testRequest" @submit="sendRequest">
-            </avue-form>
-            <span>response</span>
-            <CodePre :code="testRequestResponse"></CodePre>
-        </el-card>
+  <div>
+    <!--        <avue-form ref="request" :option="requestOption" v-model="request" @submit="handleSubmit">-->
+    <!--        </avue-form>-->
+    <avue-crud
+      v-model="request"
+      :data="data"
+      :option="requestOption"
+      :page.sync="page"
+      @row-save="handleRowSave"
+      @row-update="handleRowUpdate"
+      @before-close="beforeClose"
+      @refresh-change="refreshChange"
+      @size-change="refreshChange"
+      @current-change="refreshChange"
+      @row-del="handleDelete"
+    />
+    <el-card class="box-card" header="Test">
+      <avue-form ref="testRequest" v-model="testRequest" :option="testRequestOption" @submit="sendRequest" />
+      <span>response</span>
+      <CodePre :code="testRequestResponse" />
+    </el-card>
 
-    </div>
+  </div>
 </template>
 
 <script>
@@ -104,41 +107,41 @@ const DIC = {
     { 'value': '508', 'label': '508 - Loop Detected' },
     { 'value': '509', 'label': '509 - Bandwidth Limit Exceeded' },
     { 'value': '510', 'label': '510 - Not Extended' },
-    { 'value': '511', 'label': '511 - Network Authentication Required' }
+    { 'value': '511', 'label': '511 - Network Authentication Required' },
   ],
-//   application/json
-// application/xml
-// text/xml
-// text/json
-// text/plain
-// Other
+  //   application/json
+  // application/xml
+  // text/xml
+  // text/json
+  // text/plain
+  // Other
 
   CONTENT: [
     {
       label: 'application/json',
-      value: 'application/json'
+      value: 'application/json',
     },
     {
       label: 'application/xml',
-      value: 'application/xml'
+      value: 'application/xml',
     },
     {
       label: 'text/xml',
-      value: 'text/xml'
+      value: 'text/xml',
     },
     {
       label: 'text/json',
-      value: 'text/json'
+      value: 'text/json',
     },
     {
       label: 'text/plain',
-      value: 'text/plain'
+      value: 'text/plain',
     },
     {
       label: 'Other',
-      value: ''
+      value: '',
     },
-  ]
+  ],
 };
 const defaultRequest = {
   verb: 'GET',
@@ -148,79 +151,33 @@ const defaultRequest = {
   'Content-Type': 'application/json',
   content: 'application/json',
   body: { 'msg': 'auth' },
-  baseURL: 'test/'
+  baseURL: 'test/',
 };
 export default {
   name: 'App',
   components: {},
   data() {
     return {
+      page: {
+        // pageSizes: [10, 20, 30, 40],默认
+        currentPage: 1,
+        total: 0,
+        pageSize: 10,
+      },
       request: defaultRequest,
       testRequest: {},
       testRequestResponse: '',
-      data: []
+      data: [],
     };
   },
-  methods: {
-    handleSubmit(form, done) {
-      this.$message.success(JSON.stringify(form));
-      axios.post('/response', this.request).then(res => {
-        console.log(res);
-      }).finally(() => {
-        done();
-      });
-    },
-    handleRowSave(form, done) {
-      axios.post('/response', { baseURL: defaultRequest.baseURL, ...this.request }).then(res => {
-        this.$message.success(JSON.stringify(res));
-      }).catch(err => {
-        this.$message.error(err.response.data.message);
-      }).finally(() => {
-        done();
-      });
-    },
-    handleRowUpdate(row, index, done) {
-      axios.put('/response', { baseURL: defaultRequest.baseURL, ...this.request }).then(res => {
-        this.$message.success(JSON.stringify(res));
-      }).catch(err => {
-        this.$message.error(err.response.data.message);
-      }).finally(() => {
-        done();
-      });
-    },
-    refreshChange() {
-      axios.get('/response' + '?baseURL=' + defaultRequest.baseURL).then(res => {
-        this.data = res.data;
-      });
-    },
-    beforeClose() {
-    },
-    sendRequest(form, done) {
-      const { verb, path } = this.testRequest;
-      axios[verb.toLowerCase()](defaultRequest.baseURL + path, { headers: { test: 1 } }).then(res => {
-        this.testRequestResponse = JSON.stringify(res.data, null, '  ');
-      }).catch(err => {
-        this.testRequestResponse = JSON.stringify(err.response.data, null, '  ');
-      }).finally(res => {
-        done();
-      });
-    },
-    handleDelete(form, index) {
-      this.$confirm('delete or not?').then(() => {
-        axios.delete('/response', {
-          data: { _id: form._id }
-        }).then(res => {
-          this.$message.success(res.data.message);
-        }).catch(err => {
-          this.$message.error(err.message);
-        });
-      }).catch(err => {
-        //cancel
-      });
-
-    }
-  },
   computed: {
+    params() {
+      const { currentPage, pageSize } = this.page;
+      return {
+        baseURL: defaultRequest.baseURL,
+        currentPage, pageSize,
+      };
+    },
     requestOption() {
       return {
         mock: true,
@@ -248,7 +205,7 @@ export default {
             dicData: DIC.VERB,
             row: true,
             mock: {
-              type: 'dic'
+              type: 'dic',
             },
             // change:({value,column})=>{
             //   this.$message.success('change')
@@ -308,15 +265,15 @@ export default {
                 confirmText: 'confirm',
                 cancelText: 'cancel',
               },
-              objData: this.request.body || {}
-            }
+              objData: this.request.body || {},
+            },
           },
           {
             label: '',
             prop: 'jsonString',
             component: 'CodePre',
             params: {
-              code: this.jsonString
+              code: this.jsonString,
             },
             span: 12,
           },
@@ -329,13 +286,13 @@ export default {
             change: ({ value }) => {
               try {
                 this.request.body = JSON.parse(value);
-
               } catch (e) {
+                console.log(e);
               }
-            }
+            },
           },
 
-        ]
+        ],
       };
     },
     testRequestOption() {
@@ -364,22 +321,84 @@ export default {
             dicData: DIC.VERB,
             row: true,
             mock: {
-              type: 'dic'
+              type: 'dic',
             },
             // change:({value,column})=>{
             //   this.$message.success('change')
             // }
           },
-        ]
+        ],
       };
     },
     jsonString() {
       return JSON.stringify(this.request.body, null, '  ');
-    }
+    },
   },
   mounted() {
     this.refreshChange();
-  }
+  },
+  methods: {
+    handleSubmit(form, done) {
+      this.$message.success(JSON.stringify(form));
+      axios.post('/response', this.request).then(res => {
+        console.log(res);
+      }).finally(() => {
+        done();
+      });
+    },
+    handleRowSave(form, done) {
+      axios.post('/response', { baseURL: defaultRequest.baseURL, ...this.request }).then(res => {
+        this.$message.success(JSON.stringify(res));
+      }).catch(err => {
+        this.$message.error(err.response.data.message);
+      }).finally(() => {
+        done();
+      });
+    },
+    handleRowUpdate(row, index, done) {
+      axios.put('/response', { baseURL: defaultRequest.baseURL, ...this.request }).then(res => {
+        this.$message.success(JSON.stringify(res));
+      }).catch(err => {
+        this.$message.error(err.response.data.message);
+      }).finally(() => {
+        done();
+      });
+    },
+    refreshChange() {
+      axios.get('/response', {
+        params: this.params,
+      }).then(res => {
+        this.data = res.data.data;
+        this.page.total = res.data.total;
+      });
+    },
+    beforeClose() {
+    },
+    sendRequest(form, done) {
+      const { verb, path } = this.testRequest;
+      axios[verb.toLowerCase()](defaultRequest.baseURL + path, { headers: { test: 1 }}).then(res => {
+        this.testRequestResponse = JSON.stringify(res.data, null, '  ');
+      }).catch(err => {
+        this.testRequestResponse = JSON.stringify(err.response.data, null, '  ');
+      }).finally(res => {
+        done();
+      });
+    },
+    handleDelete(form, index) {
+      this.$confirm('delete or not?').then(() => {
+        axios.delete('/response', {
+          data: { _id: form._id },
+        }).then(res => {
+          this.$message.success(res.data.message);
+        }).catch(err => {
+          this.$message.error(err.message);
+        });
+      }).catch(err => {
+        // cancel
+        console.log(err);
+      });
+    },
+  },
 };
 </script>
 

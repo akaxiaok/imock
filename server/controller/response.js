@@ -17,7 +17,8 @@ exports.createResponse = function(req, res) {
           'Content-Encoding': encoding,
           'Content-Type': type,
         },
-        body: body
+        body: body,
+
       }).then(result => {
         console.log('insert success: ' + result.insertedId);
         res.status(status).json(result.ops[0]);
@@ -29,12 +30,14 @@ exports.createResponse = function(req, res) {
   });
 };
 exports.getResponse = function getResponse(req, res) {
-  const baseURL = req.query.baseURL;
-  findAllResponse(baseURL).then(response => {
-    res.json(response.map(v => {
-      const { headers, ...rest } = v;
-      return { ...rest, ...headers };
-    }));
+  findAllResponse(req.query).then(({ total, data }) => {
+    res.json({
+      data: data.map(v => {
+        const { headers, ...rest } = v;
+        return { ...rest, ...headers };
+      }),
+      total: total,
+    });
   }).catch(err => {
     console.log(err);
   });
@@ -54,7 +57,7 @@ exports.updateResponse = function updateResponse(req, res) {
         'Content-Encoding': encoding,
         'Content-Type': type,
       },
-      body: body
+      body: body,
     }).then(result => {
       console.log('update success');
       res.status(status).json({ message: 'update success' });
