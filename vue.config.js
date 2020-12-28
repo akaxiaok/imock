@@ -1,4 +1,4 @@
-module.exports =  {
+module.exports = {
   lintOnSave: false,
   devServer: {
     // proxy: {
@@ -8,5 +8,11 @@ module.exports =  {
     //     changeOrigin: true
     //   },
     // }
-  }
+  },
+  configureWebpack: config => {
+    config.externals = {
+      'vue': 'Vue',
+    };
+  },
 };
+

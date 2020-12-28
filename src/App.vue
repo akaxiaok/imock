@@ -2,6 +2,11 @@
   <div>
     <!--        <avue-form ref="request" :option="requestOption" v-model="request" @submit="handleSubmit">-->
     <!--        </avue-form>-->
+    <el-card class="box-card" header="Test">
+      <avue-form ref="testRequest" v-model="testRequest" :option="testRequestOption" @submit="sendRequest" />
+      <span>response</span>
+      <CodePre :code="testRequestResponse" />
+    </el-card>
     <avue-crud
       v-model="request"
       :data="data"
@@ -15,12 +20,6 @@
       @current-change="refreshChange"
       @row-del="handleDelete"
     />
-    <el-card class="box-card" header="Test">
-      <avue-form ref="testRequest" v-model="testRequest" :option="testRequestOption" @submit="sendRequest" />
-      <span>response</span>
-      <CodePre :code="testRequestResponse" />
-    </el-card>
-
   </div>
 </template>
 

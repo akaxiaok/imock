@@ -1,8 +1,7 @@
-import Vue from 'vue';
+const Vue = window.Vue;
 import App from './App.vue';
 import ElementUI from 'element-ui';
 import 'mockjs';
-import Avue from '@smallwei/avue';
 import 'element-ui/lib/theme-chalk/index.css';
 
 import '@smallwei/avue/lib/index.css';
@@ -17,8 +16,7 @@ Vue.use(VueHighlightJS);
 Vue.use(JsonEditor);
 Vue.use(ElementUI);
 
-Vue.use(Avue);
-
+Vue.use(window.AVUE);
 Vue.config.productionTip = false;
 
 new Vue({
