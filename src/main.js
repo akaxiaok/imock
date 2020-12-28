@@ -2,7 +2,6 @@ const Vue = window.Vue;
 import App from './App.vue';
 import ElementUI from 'element-ui';
 import 'mockjs';
-import 'element-ui/lib/theme-chalk/index.css';
 
 import '@smallwei/avue/lib/index.css';
 
