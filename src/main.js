@@ -1,4 +1,4 @@
-const Vue = window.Vue;
+import Vue from 'vue';
 import App from './App.vue';
 import ElementUI from 'element-ui';
 import 'mockjs';
@@ -7,7 +7,6 @@ import '@smallwei/avue/lib/index.css';
 
 import JsonEditor from 'vue-json-edit';
 import VueHighlightJS from 'vue-highlightjs';
-import 'highlight.js/styles/github.css';
 import Code from './components/Code';
 
 Vue.component('CodePre', Code);

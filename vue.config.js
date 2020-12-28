@@ -12,7 +12,8 @@ module.exports = {
   configureWebpack: config => {
     config.externals = {
       'vue': 'Vue',
-      'element-ui': 'ElementUI',
+      'element-ui': 'ELEMENT',
+      'highlight.js': 'hljs',
     };
   },
 };
