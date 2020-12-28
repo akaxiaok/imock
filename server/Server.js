@@ -4,10 +4,13 @@ const multiparty = require('multiparty');
 const util = require('util');
 const Mock = require('mockjs');
 const path = require('path');
+const compression = require('compression');
+const fs = require('fs');
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(compression());
 
 function addRoute(user) {
   app.all('/' + user.baseURL + '*', function(req, res, next) {
@@ -16,7 +19,7 @@ function addRoute(user) {
     const verb = req.method;
     findResponse(user.baseURL, path, verb).then(response => {
       if (response) {
-        const { headers, verb, path, status, body, } = response;
+        const { headers, verb, path, status, body } = response;
         console.log(verb + ' ' + path + ' start');
         res.set(headers).status(status).json(Mock.mock(body));
       } else {
@@ -27,9 +30,7 @@ function addRoute(user) {
           res.status(404).json({ message: verb + ' ' + path + ' not found' });
         }
       }
-
     });
-
   });
 }
 
@@ -43,11 +44,11 @@ findUsers().then(users => {
 
 app.use(express.static(path.join(__dirname, '../dist')));
 app.post('/form', function(req, res, next) {
-  //生成multiparty对象，并配置上传目标路径
+  // 生成multiparty对象，并配置上传目标路径
   const form = new multiparty.Form({ uploadDir: './' });
-  //上传完成后处理
-  //fields 一般的表单元素
-  //files 文件
+  // 上传完成后处理
+  // fields 一般的表单元素
+  // files 文件
   form.parse(req, function(err, fields, files) {
     const filesTmp = JSON.stringify(files, null, 2);
     if (err) {
@@ -59,7 +60,7 @@ app.post('/form', function(req, res, next) {
 
       const uploadedPath = inputFile.path;
       const dstPath = './' + inputFile.originalFilename;
-      //重命名为真实文件名
+      // 重命名为真实文件名
       fs.rename(uploadedPath, dstPath, function(err) {
         if (err) {
           console.log('rename error: ' + err);
@@ -100,9 +101,7 @@ app.get('/script.js', function(req, res, next) {
 module.exports = app;
 exports.addRoute = addRoute;
 
-
 const crossDomainApp = express();
-
 
 app.all('*', function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*'); // 允许哪些域进行跨域请求
@@ -115,7 +114,7 @@ app.all('*', function(req, res, next) {
   // res.header('Access-Control-Expose-Headers', 'Date');
   res.header('Access-Control-Max-Age', 0); // 在 n 秒时间内不必再次预检
   // res.header('X-Powered-By', ' 3.2.1');
-  //这段仅仅为了方便返回json而已
+  // 这段仅仅为了方便返回json而已
   res.header('Content-Type', 'application/json;charset=utf-8');
   next();
 });
@@ -124,14 +123,12 @@ crossDomainApp.post('/post', function(req, res, next) {
   res.writeHead(200, { 'content-type': 'text/plain;charset=utf-8' });
   res.write('crossDomainApp received post\n\n');
   res.end();
-
 });
 
 crossDomainApp.get('/get', function(req, res, next) {
   res.writeHead(200, { 'content-type': 'text/plain;charset=utf-8' });
   res.write('crossDomainApp received get\n\n');
   res.end();
-
 });
 
 // crossDomainApp.listen(3001, function () {
