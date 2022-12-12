@@ -18,7 +18,7 @@
     "compression": "^1.7.4",
     "core-js": "^3.6.4",
     "element-ui": "2.13.1",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "highlight.js": "^10.0.1",
     "mockjs": "1.1.0",
     "mongodb": "^3.5.7",
